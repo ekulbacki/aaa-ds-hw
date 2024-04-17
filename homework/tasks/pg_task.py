@@ -73,7 +73,7 @@ class ItemStorage:
                title,
                description
         FROM items 
-        WHERE items.user = $1
+        WHERE items.user_id = $1
         AND items.title = $2
         AND items.description = $3
         """
