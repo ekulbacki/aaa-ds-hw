@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-
+from dataclasses import dataclass, astuple
 import asyncpg
 
 
@@ -37,8 +36,18 @@ class ItemStorage:
         """
         # In production environment we will use migration tool
         # like https://github.com/pressly/goose
-        # YOUR CODE GOES HERE
-
+        query = """
+        CREATE TABLE items (
+            item_id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT NOT NULL
+        );
+        """
+        
+        # Execute query q to create table
+        await self._pool.execute(query)
+        
     async def save_items(self, items: list[ItemEntry]) -> None:
         """
         Напишите код для вставки записей в таблицу items одним запросом, цикл
@@ -46,7 +55,11 @@ class ItemStorage:
         """
         # Don't use str-formatting, query args should be escaped to avoid
         # sql injections https://habr.com/ru/articles/148151/.
-        # YOUR CODE GOES HERE
+        query = """
+        INSERT INTO items VALUES ($1, $2, $3, $4);
+        """
+        
+        await self._pool.executemany(query, map(astuple, items))
 
     async def find_similar_items(
         self, user_id: int, title: str, description: str
@@ -54,4 +67,17 @@ class ItemStorage:
         """
         Напишите код для поиска записей, имеющих указанные user_id, title и description.
         """
-        # YOUR CODE GOES HERE
+        query = """
+        SELECT item_id,
+               user_id,
+               title,
+               description
+        FROM items 
+        WHERE items.user_id = $1
+        AND items.title = $2
+        AND items.description = $3
+        """
+        
+        result = await self._pool.fetch(query, user_id, title, description)
+        return [ItemEntry(**record) for record in result]
+
