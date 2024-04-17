@@ -1,8 +1,9 @@
-
+from dataclass import dataclass, astuple
 import asyncpg
 
 
-class ItemEntry(asyncpg.Record):
+@dataclass
+class ItemEntry:
     item_id: int
     user_id: int
     title: str
@@ -58,7 +59,7 @@ class ItemStorage:
         INSERT INTO items VALUES ($1, $2, $3, $4);
         """
         
-        await self._pool.executemany(query, (tuple(item.__dict__.values()) for item in items))
+        await self._pool.executemany(query, map(astuple, items))
 
     async def find_similar_items(
         self, user_id: int, title: str, description: str
@@ -77,5 +78,6 @@ class ItemStorage:
         AND items.description = $3
         """
         
-        return await self._pool.fetch(query, user_id, title, description, record_class=ItemEntry)
+        result = await self._pool.fetch(query, user_id, title, description)
+        return [ItemEntry(**record) for record in result]
 
