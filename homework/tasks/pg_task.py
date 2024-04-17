@@ -1,4 +1,4 @@
-from dataclass import dataclass, astuple
+from dataclasses import dataclass, astuple
 import asyncpg
 
 
