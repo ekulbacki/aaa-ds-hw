@@ -3,7 +3,7 @@ import redis.asyncio as aredis
 
 class UsersByTitleStorage:
     def __init__(self):
-        self._client = aredis.StrictRedis()
+        self._client = aredis.StrictRedis(charset='utf-8', decode_responses=True)
 
     async def connect(self) -> None:
         pass

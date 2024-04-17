@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 
 import asyncpg
 
 
-@dataclass
-class ItemEntry:
+class ItemEntry(asyncpg.Record):
     item_id: int
     user_id: int
     title: str
