@@ -20,11 +20,17 @@ async def do_reliable_request(url: str, observer: ResultsObserver) -> None:
     """
 
     async with httpx.AsyncClient() as client:
-        # YOUR CODE GOES HERE
-        response = await client.get(url)
-        response.raise_for_status()
-        data = response.read()
+        max_attempts = 10
+        for attempt in range(max_attempts):
+            try:
+                response = await client.get(url, timeout=10.0)
+                response.raise_for_status()
+                data = response.read()
+                observer.observe(data)
+                return
+            except httpx.HTTPStatusError as e:
+                continue
 
-        observer.observe(data)
-        return
-        #####################
+        raise Exception(f'Failed after {max_attempts} attempts')
+
+
