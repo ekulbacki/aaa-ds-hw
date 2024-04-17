@@ -28,7 +28,7 @@ async def do_reliable_request(url: str, observer: ResultsObserver) -> None:
                 data = response.read()
                 observer.observe(data)
                 return
-            except httpx.HTTPStatusError as e:
+            except httpx.HTTPStatusError:
                 continue
 
         raise Exception(f'Failed after {max_attempts} attempts')
