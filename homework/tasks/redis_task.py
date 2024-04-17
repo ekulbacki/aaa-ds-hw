@@ -3,7 +3,7 @@ import redis.asyncio as aredis
 
 class UsersByTitleStorage:
     def __init__(self):
-        self._client = aredis.StrictRedis(decode_responses=True)
+        self._client = aredis.StrictRedis()
 
     async def connect(self) -> None:
         pass
@@ -24,4 +24,5 @@ class UsersByTitleStorage:
         Напишите код для поиска уникальных user_id, имеющих хотя бы одно объявление
         с заданным title.
         """
-        return await self._client.smembers(title)
+        result = await self._client.smembers(title)
+        return list(map(int, result))
